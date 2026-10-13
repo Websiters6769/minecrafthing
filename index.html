@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BlockWave HD — Ultra-Sharp Packs for Voxel Worlds</title>
+<style>
+  :root{
+    --ink:#10264a; --ink2:#2a4170; --paper:#f4fbff; --white:#ffffff;
+    --sky:#4cc3ff; --sky2:#bdeaff; --lime:#6ee04a; --lime2:#3fbf26; --sun:#ffd43b; --orange:#ff8a2b; --pink:#ff5fa2; --teal:#1fc9a4; --violet:#8b6bff;
+    --mono:"Courier New",ui-monospace,monospace;
+    --head:"Trebuchet MS","Segoe UI",Verdana,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;background:var(--paper);color:var(--ink);line-height:1.55;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;color:inherit}
+  svg{display:block}
+  .container{width:min(1200px,92%);margin:0 auto}
+  :focus-visible{outline:3px solid var(--violet);outline-offset:3px}
+  h1,h2,h3,h4{font-family:var(--head);font-weight:900;letter-spacing:-.01em}
+  .btn{display:inline-block;border:3px solid var(--ink);background:var(--lime);color:var(--ink);padding:13px 26px;font-family:var(--head);font-weight:900;font-size:.95rem;text-transform:uppercase;letter-spacing:.06em;box-shadow:5px 5px 0 var(--ink);transition:transform .12s,box-shadow .12s,background .2s}
+  .btn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
+  .btn:active{transform:translate(4px,4px);box-shadow:1px 1px 0 var(--ink)}
+  .btn.sun{background:var(--sun)}.btn.sky{background:var(--sky)}.btn.white{background:var(--white)}.btn.pink{background:var(--pink);color:#fff}
+  .btn.sm{padding:9px 18px;font-size:.8rem;box-shadow:3px 3px 0 var(--ink)}
+  .btn.block{display:block;width:100%;text-align:center}
+  .btn:disabled{opacity:.6;cursor:progress}
+
+  /* HEADER */
+  header{position:sticky;top:0;z-index:60;background:var(--white);border-bottom:4px solid var(--ink)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:74px;gap:16px;position:relative}
+  .logo{display:flex;align-items:center;gap:10px;font-family:var(--head);font-weight:900;font-size:1.5rem;letter-spacing:-.02em;text-transform:uppercase}
+  .logo svg{width:38px;height:40px}
+  .logo em{font-style:normal;color:var(--sky);-webkit-text-stroke:0}
+  .logo b{background:var(--sun);border:2px solid var(--ink);padding:0 6px;font-size:.7rem;margin-left:4px;letter-spacing:.08em}
+  .nav-links{display:flex;gap:6px;list-style:none;align-items:center}
+  .nav-links a{font-family:var(--head);font-weight:800;font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;padding:8px 14px;border:3px solid transparent;transition:.15s}
+  .nav-links a:hover{border-color:var(--ink);background:var(--sky2)}
+  .actions{display:flex;align-items:center;gap:12px}
+  .saved-btn{background:var(--white);border:3px solid var(--ink);padding:8px 14px;font-family:var(--head);font-weight:900;font-size:.8rem;box-shadow:3px 3px 0 var(--ink)}
+  .saved-btn:hover{background:var(--pink);color:#fff}
+  .burger{display:none;width:46px;height:46px;border:3px solid var(--ink);background:var(--sun);position:relative;box-shadow:3px 3px 0 var(--ink)}
+  .burger span{position:absolute;left:9px;right:9px;height:4px;background:var(--ink);transition:.25s}
+  .burger span:nth-child(1){top:11px}.burger span:nth-child(2){top:20px}.burger span:nth-child(3){top:29px}
+  .burger.open span:nth-child(1){top:20px;transform:rotate(45deg)}
+  .burger.open span:nth-child(2){opacity:0}
+  .burger.open span:nth-child(3){top:20px;transform:rotate(-45deg)}
+
+  /* HERO */
+  .hero{position:relative;min-height:calc(100vh - 78px);display:flex;align-items:center;overflow:hidden;padding:70px 0 190px;background:linear-gradient(180deg,#3bb6ff 0%,#8bdcff 55%,#d9f4ff 100%)}
+  .sun{position:absolute;right:9%;top:9%;width:92px;height:92px;background:var(--sun);border:4px solid #fff3a6;box-shadow:0 0 0 14px rgba(255,212,59,.35),0 0 0 32px rgba(255,212,59,.18),0 0 90px 30px rgba(255,235,120,.6);animation:spin 40s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .cloud{position:absolute;width:24px;height:24px;background:#fff;opacity:.95;animation:cloud linear infinite}
+  .cloud.c1{top:16%;left:-10%;box-shadow:24px 0 #fff,48px 0 #fff,72px 0 #fff,96px 0 #fff,24px -24px #fff,48px -24px #fff,72px -24px #fff,48px -48px #fff;animation-duration:70s}
+  .cloud.c2{top:34%;left:-10%;transform:scale(.7);box-shadow:24px 0 #fff,48px 0 #fff,72px 0 #fff,24px -24px #fff,48px -24px #fff;animation-duration:90s;animation-delay:-35s}
+  .cloud.c3{top:6%;left:-10%;transform:scale(.55);box-shadow:24px 0 #fff,48px 0 #fff,72px 0 #fff,96px 0 #fff,48px -24px #fff,72px -24px #fff;animation-duration:110s;animation-delay:-70s}
+  @keyframes cloud{to{left:110%}}
+  .hero-inner{position:relative;z-index:3;display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center}
+  .tag{display:inline-block;background:var(--white);border:3px solid var(--ink);padding:6px 16px;font-family:var(--head);font-weight:900;font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;box-shadow:4px 4px 0 var(--ink);transform:rotate(-2deg);margin-bottom:22px}
+  .tag i{font-style:normal;background:var(--lime);padding:0 8px;margin-right:6px;border:2px solid var(--ink)}
+  .hero h1{font-size:clamp(2.6rem,6.6vw,5.4rem);line-height:.98;color:#fff;text-transform:uppercase;text-shadow:3px 3px 0 var(--ink),6px 6px 0 var(--ink2),0 0 0 var(--ink)}
+  .hero h1 span{color:var(--sun)}
+  .hero p{max-width:500px;margin:24px 0 32px;font-size:1.15rem;font-weight:600;color:var(--ink);background:rgba(255,255,255,.7);padding:14px 18px;border-left:6px solid var(--ink)}
+  .hero-btns{display:flex;gap:16px;flex-wrap:wrap}
+  .stats{display:flex;gap:18px;margin-top:34px;flex-wrap:wrap}
+  .stat{background:var(--white);border:3px solid var(--ink);padding:10px 18px;box-shadow:4px 4px 0 var(--ink)}
+  .stat strong{display:block;font-family:var(--head);font-weight:900;font-size:1.7rem;line-height:1}
+  .stat span{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--ink2)}
+  .hero-art{position:relative;height:440px}
+  .hero-art .fc{position:absolute;animation:bob 5s ease-in-out infinite;filter:drop-shadow(0 12px 0 rgba(16,38,74,.2))}
+  .fc.a{width:230px;left:2%;top:10%;animation-delay:-1s}
+  .fc.b{width:190px;right:2%;top:2%;animation-delay:-2.5s}
+  .fc.c{width:210px;left:30%;bottom:0;animation-delay:-4s}
+  @keyframes bob{50%{translate:0 -16px}}
+  .terrain{position:absolute;left:0;right:0;bottom:0;height:170px;z-index:2}
+  .terrain .back{position:absolute;inset:0;background:var(--teal);clip-path:polygon(0 60%,6% 60%,6% 44%,14% 44%,14% 52%,22% 52%,22% 34%,31% 34%,31% 46%,40% 46%,40% 28%,48% 28%,48% 42%,58% 42%,58% 54%,66% 54%,66% 36%,75% 36%,75% 48%,84% 48%,84% 30%,92% 30%,92% 50%,100% 50%,100% 100%,0 100%)}
+  .terrain .front{position:absolute;inset:0;background:linear-gradient(180deg,var(--lime) 0 22px,var(--lime2) 22px 30px,#1c9c6a 30px);clip-path:polygon(0 78%,8% 78%,8% 66%,17% 66%,17% 74%,27% 74%,27% 62%,38% 62%,38% 72%,49% 72%,49% 58%,60% 58%,60% 70%,71% 70%,71% 60%,82% 60%,82% 72%,91% 72%,91% 64%,100% 64%,100% 100%,0 100%)}
+
+  /* SECTIONS */
+  section{padding:90px 0}
+  .head{text-align:center;margin-bottom:40px}
+  .head .kicker{display:inline-block;background:var(--sun);border:3px solid var(--ink);padding:4px 14px;font-family:var(--head);font-weight:900;font-size:.75rem;text-transform:uppercase;letter-spacing:.14em;box-shadow:3px 3px 0 var(--ink);transform:rotate(1.5deg)}
+  .head h2{font-size:clamp(2rem,5vw,3.4rem);margin-top:16px;text-transform:uppercase;line-height:1.05}
+  .head p{max-width:540px;margin:12px auto 0;color:var(--ink2);font-weight:600}
+  .controls{background:var(--white);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);padding:22px;display:grid;gap:18px;margin-bottom:16px}
+  .ctrl-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .search{position:relative;flex:1 1 300px}
+  .search input{width:100%;border:3px solid var(--ink);background:var(--paper);padding:14px 44px 14px 48px;font:inherit;font-size:1.05rem;font-weight:600;outline:none;transition:.15s}
+  .search input:focus{background:#fff;box-shadow:0 0 0 4px var(--sky)}
+  .search .ico{position:absolute;left:16px;top:50%;translate:0 -50%;font-size:1.2rem}
+  .search .clear{position:absolute;right:8px;top:50%;translate:0 -50%;width:32px;height:32px;border:2px solid var(--ink);background:var(--pink);color:#fff;font-weight:900;display:none}
+  select{border:3px solid var(--ink);background:var(--white);padding:13px 16px;font-family:var(--head);font-weight:800;font-size:.85rem;outline:none;text-transform:uppercase;letter-spacing:.04em}
+  select:focus{box-shadow:0 0 0 4px var(--sky)}
+  .filters{display:flex;gap:10px;flex-wrap:wrap}
+  .chip{border:3px solid var(--ink);background:var(--white);padding:9px 18px;font-family:var(--head);font-weight:900;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;box-shadow:3px 3px 0 var(--ink);transition:.12s}
+  .chip:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink);background:var(--sky2)}
+  .chip.active{background:var(--lime);transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+  .chip.saved.active{background:var(--pink);color:#fff}
+  .result-info{font-family:var(--mono);font-weight:700;font-size:.9rem;margin:18px 0 24px;color:var(--ink2)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:30px}
+  .card{background:var(--white);border:4px solid var(--ink);box-shadow:7px 7px 0 var(--ink);display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s;animation:pop .4s both}
+  @keyframes pop{from{opacity:0;transform:translateY(20px) scale(.96)}}
+  .card:hover{transform:translate(-3px,-3px);box-shadow:11px 11px 0 var(--ink)}
+  .art{position:relative;height:230px;display:grid;place-items:center;border-bottom:4px solid var(--ink);overflow:hidden;cursor:pointer;border:0;border-bottom:4px solid var(--ink);width:100%}
+  .art svg{width:170px;height:179px;transition:transform .3s;filter:drop-shadow(0 10px 0 rgba(16,38,74,.22))}
+  .card:hover .art svg{transform:translateY(-8px) rotate(-2deg)}
+  .art.c-Textures{background:linear-gradient(160deg,#fff3a6,#ffd43b 60%,#ffb347)}
+  .art.c-Shaders{background:linear-gradient(160deg,#c9f0ff,#4cc3ff 70%,#8b6bff)}
+  .art.c-Worlds{background:linear-gradient(160deg,#c9ffe9,#1fc9a4 65%,#2dd36f)}
+  .art.c-Mods{background:linear-gradient(160deg,#ffe0c2,#ff8a2b 70%,#ff5fa2)}
+  .q-badge{position:absolute;left:12px;top:12px;background:var(--ink);color:#fff;font-family:var(--mono);font-weight:700;font-size:.78rem;padding:4px 10px;border:2px solid #fff;z-index:2}
+  .new-badge{position:absolute;left:12px;bottom:12px;background:var(--pink);color:#fff;font-family:var(--head);font-weight:900;font-size:.7rem;letter-spacing:.1em;padding:3px 10px;border:2px solid var(--ink);text-transform:uppercase;z-index:2}
+  .heart{position:absolute;right:12px;top:12px;width:42px;height:42px;border:3px solid var(--ink);background:var(--white);font-size:1.1rem;z-index:3;line-height:1;transition:.12s}
+  .heart:hover{transform:scale(1.1)}
+  .heart.on{background:var(--pink);color:#fff}
+  .card-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .cat-tag{font-family:var(--mono);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;color:var(--ink2)}
+  .card-body h3{font-size:1.3rem;line-height:1.15}
+  .card-body p{font-size:.92rem;color:var(--ink2);flex:1}
+  .meta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.82rem;font-weight:700;padding-top:8px;border-top:3px dashed var(--sky2)}
+  .stars{color:#e69a00}
+  .card-body .btn{margin-top:8px}
+  .empty{display:none;text-align:center;padding:60px 20px;background:var(--white);border:4px dashed var(--ink)}
+  .empty h3{font-size:1.8rem;margin:8px 0}.empty p{color:var(--ink2);margin-bottom:20px}
+  .empty .big{font-size:3.4rem}
+
+  /* FEATURES */
+  .features{background:linear-gradient(180deg,#fff7c9,#ffe27a);border-top:4px solid var(--ink);border-bottom:4px solid var(--ink)}
+  .feat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px}
+  .feat{background:var(--white);border:4px solid var(--ink);padding:26px 22px;box-shadow:6px 6px 0 var(--ink)}
+  .feat .ico{width:58px;height:58px;display:grid;place-items:center;font-size:1.7rem;border:3px solid var(--ink);margin-bottom:14px}
+  .feat:nth-child(1) .ico{background:var(--lime)}.feat:nth-child(2) .ico{background:var(--sky)}.feat:nth-child(3) .ico{background:var(--pink)}.feat:nth-child(4) .ico{background:var(--orange)}
+  .feat h4{font-size:1.15rem;margin-bottom:6px;text-transform:uppercase}
+  .feat p{font-size:.92rem;color:var(--ink2)}
+
+  /* CTA */
+  .cta{background:linear-gradient(135deg,var(--sky),var(--violet));color:#fff;border-bottom:4px solid var(--ink);text-align:center;padding:80px 0}
+  .cta h2{font-size:clamp(2rem,5vw,3.4rem);text-transform:uppercase;text-shadow:3px 3px 0 var(--ink)}
+  .cta p{max-width:520px;margin:14px auto 30px;font-weight:600;font-size:1.1rem}
+
+  /* FOOTER */
+  footer{background:var(--ink);color:#d7e6ff;padding:60px 0 24px}
+  .foot-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.3fr;gap:36px}
+  footer h4{color:var(--sun);text-transform:uppercase;letter-spacing:.1em;font-size:.9rem;margin-bottom:14px}
+  footer ul{list-style:none;display:grid;gap:9px;font-size:.95rem}
+  footer a:hover,.linkbtn:hover{color:var(--lime)}
+  .linkbtn{background:none;border:0;padding:0;font:inherit;color:inherit;text-align:left}
+  .foot-brand .logo{color:#fff}
+  .foot-brand p{margin-top:14px;font-size:.92rem;max-width:300px;color:#aac2ee}
+  .news{display:flex;margin-top:4px}
+  .news input{flex:1;min-width:0;border:3px solid #fff;border-right:0;padding:11px 12px;font:inherit;background:var(--paper);color:var(--ink);outline:none}
+  .news button{border:3px solid #fff;background:var(--lime);color:var(--ink);font-family:var(--head);font-weight:900;padding:0 16px;text-transform:uppercase;font-size:.78rem}
+  .news button:hover{background:var(--sun)}
+  .err{display:block;color:#ff5f6b;font-size:.8rem;font-weight:700;min-height:1.1em;margin-top:4px}
+  footer .err{color:#ffb3b8}
+  .copy{margin-top:44px;padding-top:20px;border-top:2px solid #2f4b82;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-family:var(--mono);font-size:.8rem;color:#8fa9dc}
+
+  /* MODALS */
+  .shade{position:fixed;inset:0;background:rgba(16,38,74,.78);z-index:100;opacity:0;pointer-events:none;transition:opacity .25s}
+  .shade.show{opacity:1;pointer-events:auto}
+  .modal{position:fixed;left:50%;top:50%;translate:-50% -46%;width:min(940px,94%);max-height:92vh;overflow:auto;background:var(--white);z-index:110;display:grid;grid-template-columns:1fr 1.1fr;opacity:0;pointer-events:none;transition:.25s;border:5px solid var(--ink);box-shadow:12px 12px 0 var(--ink)}
+  .modal.show{opacity:1;pointer-events:auto;translate:-50% -50%}
+  .modal.narrow{grid-template-columns:1fr;width:min(600px,94%)}
+  .m-art{position:relative;display:grid;place-items:center;min-height:440px;border-right:5px solid var(--ink)}
+  .m-art svg{width:min(300px,80%);height:auto;filter:drop-shadow(0 14px 0 rgba(16,38,74,.22));animation:bob 5s ease-in-out infinite}
+  .m-body{padding:34px 34px 30px;display:flex;flex-direction:column;gap:10px}
+  .m-body h2{font-size:2rem;line-height:1.05;text-transform:uppercase}
+  .m-by{font-family:var(--mono);font-weight:700;font-size:.85rem;color:var(--ink2)}
+  .m-desc{color:var(--ink2);font-weight:500}
+  .m-feats{list-style:none;display:grid;gap:5px;font-weight:600;font-size:.92rem}
+  .m-feats li::before{content:"■ ";color:var(--lime2)}
+  .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:6px 0}
+  .fact{border:3px solid var(--ink);padding:8px 10px;background:var(--paper)}
+  .fact span{display:block;font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ink2)}
+  .fact b{font-family:var(--head);font-size:1.05rem}
+  .m-label{font-family:var(--head);font-weight:900;font-size:.8rem;text-transform:uppercase;letter-spacing:.1em}
+  .qual{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .qual button{border:3px solid var(--ink);background:var(--white);padding:9px 6px;font-family:var(--head);font-weight:900;font-size:.78rem;text-transform:uppercase;transition:.12s;line-height:1.2}
+  .qual button small{display:block;font-family:var(--mono);font-weight:700;font-size:.72rem;text-transform:none;color:var(--ink2)}
+  .qual button:hover{background:var(--sky2)}
+  .qual button.active{background:var(--sun);box-shadow:3px 3px 0 var(--ink)}
+  .prog{height:22px;border:3px solid var(--ink);background:var(--paper);display:none;overflow:hidden}
+  .prog i{display:block;height:100%;width:0;background:repeating-linear-gradient(45deg,var(--lime) 0 12px,var(--lime2) 12px 24px);transition:width .1s linear}
+  .m-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+  .m-actions .btn{flex:1 1 160px;text-align:center}
+  .x{position:absolute;top:10px;right:10px;width:44px;height:44px;border:3px solid var(--ink);background:var(--pink);color:#fff;font-size:1.2rem;font-weight:900;z-index:5;line-height:1;box-shadow:3px 3px 0 var(--ink)}
+  .x:hover{background:var(--orange)}
+  .form-body{padding:38px 34px 32px}
+  .form-body h2{font-size:1.9rem;text-transform:uppercase;margin:4px 0 6px}
+  .form-body>p{color:var(--ink2);margin-bottom:20px;font-weight:600}
+  form{display:grid;gap:16px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .field label{display:block;font-family:var(--head);font-weight:900;font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
+  .field input,.field select,.field textarea{width:100%;border:3px solid var(--ink);background:var(--paper);padding:11px 13px;font:inherit;font-weight:600;outline:none;border-radius:0;text-transform:none;letter-spacing:0}
+  .field input:focus,.field select:focus,.field textarea:focus{background:#fff;box-shadow:0 0 0 4px var(--sky)}
+  .field textarea{min-height:90px;resize:vertical}
+
+  /* TOAST */
+  .toast{position:fixed;left:50%;bottom:26px;translate:-50% 140px;background:var(--lime);color:var(--ink);border:4px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:13px 24px;font-family:var(--head);font-weight:900;text-transform:uppercase;font-size:.85rem;letter-spacing:.05em;z-index:300;transition:translate .3s;max-width:92%;text-align:center}
+  .toast.show{translate:-50% 0}
+
+  /* RESPONSIVE */
+  @media(max-width:980px){
+    .burger{display:block}
+    .nav-links{position:absolute;top:100%;left:-4vw;right:-4vw;background:var(--white);flex-direction:column;align-items:stretch;gap:0;border-bottom:4px solid var(--ink);clip-path:inset(0 0 100% 0);transition:clip-path .3s;pointer-events:none;padding:6px 4vw 14px}
+    .nav-links.open{clip-path:inset(0 0 -10px 0);pointer-events:auto}
+    .nav-links a{display:block;padding:14px 12px;border-width:0 0 3px 0;border-color:var(--sky2)}
+    .hero-inner{grid-template-columns:1fr}
+    .hero-art{height:300px;order:-1}
+    .fc.a{width:150px}.fc.b{width:130px}.fc.c{width:140px;left:34%}
+    .feat-grid{grid-template-columns:1fr 1fr}
+    .foot-grid{grid-template-columns:1fr 1fr}
+    .modal{grid-template-columns:1fr}
+    .m-art{min-height:230px;border-right:0;border-bottom:5px solid var(--ink)}
+    .m-art svg{width:170px}
+  }
+  @media(max-width:560px){
+    .feat-grid,.foot-grid{grid-template-columns:1fr}
+    .two{grid-template-columns:1fr}
+    .actions .hide-sm{display:none}
+    .facts{grid-template-columns:1fr 1fr 1fr}
+    .m-body,.form-body{padding:24px 20px}
+    section{padding:66px 0}
+    .hero{padding-bottom:150px}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="#top" class="logo" aria-label="BlockWave HD home">
+      <svg viewBox="0 0 40 42" aria-hidden="true"><polygon points="20,2 38,12 20,22 2,12" fill="#6ee04a" stroke="#10264a" stroke-width="2.5"/><polygon points="2,12 20,22 20,40 2,30" fill="#4cc3ff" stroke="#10264a" stroke-width="2.5"/><polygon points="38,12 20,22 20,40 38,30" fill="#ffd43b" stroke="#10264a" stroke-width="2.5"/></svg>
+      <span>Block<em>Wave</em></span><b>HD</b>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#top">Home</a></li>
+      <li><a href="#browse" data-cat="All">Browse</a></li>
+      <li><a href="#browse" data-cat="Shaders">Shaders</a></li>
+      <li><a href="#browse" data-cat="Worlds">Worlds</a></li>
+      <li><a href="#why">Why HD</a></li>
+    </ul>
+    <div class="actions">
+      <button class="saved-btn" id="savedBtn" aria-label="View saved packs">♥ Saved <span id="savedCount">0</span></button>
+      <button class="btn sm sun hide-sm" data-submit>Submit Pack</button>
+      <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" style="padding-top:70px">
+    <div class="sun" aria-hidden="true"></div>
+    <div class="cloud c1" aria-hidden="true"></div><div class="cloud c2" aria-hidden="true"></div><div class="cloud c3" aria-hidden="true"></div>
+    <div class="container hero-inner">
+      <div>
+        <span class="tag"><i>NEW</i>8K-ready packs inside</span>
+        <h1>Build your world in <span>high definition</span></h1>
+        <p>Ultra-sharp textures, glowing shaders and hand-built worlds for blocky sandbox games. Every pack is tested at HD, UHD and 4K.</p>
+        <div class="hero-btns">
+          <a href="#browse" class="btn">Browse Packs</a>
+          <button class="btn sky" data-submit>Submit Yours</button>
+        </div>
+        <div class="stats">
+          <div class="stat"><strong data-count="12">0</strong><span>Featured packs</span></div>
+          <div class="stat"><strong data-count="1200">0</strong><span>K downloads</span></div>
+          <div class="stat"><strong>4.8★</strong><span>Avg rating</span></div>
+        </div>
+      </div>
+      <div class="hero-art" id="heroCubes" aria-hidden="true"></div>
+    </div>
+    <div class="terrain" aria-hidden="true"><div class="back"></div><div class="front"></div></div>
+  </section>
+
+  <section id="browse">
+    <div class="container">
+      <div class="head">
+        <span class="kicker">The Library</span>
+        <h2>Pick your next pack</h2>
+        <p>Search by name, style or tag. Results update as you type.</p>
+      </div>
+
+      <div class="controls">
+        <div class="ctrl-row">
+          <div class="search">
+            <span class="ico" aria-hidden="true">🔍</span>
+            <input id="search" type="search" placeholder="Search “realistic”, “coral”, “lighting”…" autocomplete="off" aria-label="Search packs">
+            <button class="clear" id="clearBtn" aria-label="Clear search">✕</button>
+          </div>
+          <select id="quality" aria-label="Minimum quality">
+            <option value="0">Quality: Any</option>
+            <option value="1">HD or better</option>
+            <option value="2">UHD or better</option>
+            <option value="3">4K only</option>
+          </select>
+          <select id="sort" aria-label="Sort packs">
+            <option value="featured">Sort: Featured</option>
+            <option value="downloads">Most downloaded</option>
+            <option value="rating">Top rated</option>
+            <option value="newest">Newest</option>
+            <option value="az">Name A–Z</option>
+          </select>
+        </div>
+        <div class="filters" id="filters" role="group" aria-label="Filter by category"></div>
+      </div>
+
+      <div class="result-info" id="resultInfo" aria-live="polite"></div>
+      <div class="grid" id="grid"></div>
+      <div class="empty" id="empty">
+        <div class="big">🧱</div>
+        <h3>No blocks found</h3>
+        <p>Try another word or clear the filters to see every pack.</p>
+        <button class="btn" id="resetBtn">Reset Filters</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="why">
+    <div class="container">
+      <div class="head">
+        <span class="kicker" style="background:var(--white)">Why BlockWave</span>
+        <h2>Sharp. Bright. Tested.</h2>
+      </div>
+      <div class="feat-grid">
+        <div class="feat"><div class="ico">🔎</div><h4>Pixel-crisp</h4><p>Every texture is checked up close so edges stay razor sharp at any render distance.</p></div>
+        <div class="feat"><div class="ico">⚡</div><h4>Fast loading</h4><p>Optimised sizes with Standard, High and Ultra download options for every device.</p></div>
+        <div class="feat"><div class="ico">🌈</div><h4>Colour-true</h4><p>Bright, balanced palettes that stay vivid in daylight, caves and everything between.</p></div>
+        <div class="feat"><div class="ico">🛡️</div><h4>Creator-safe</h4><p>Every pack is reviewed by hand before it appears in the library.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="container">
+      <h2>Made something shiny?</h2>
+      <p>Share your pack with a community of builders. We review submissions every week.</p>
+      <button class="btn sun" data-submit>Submit a Creation</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="logo"><svg viewBox="0 0 40 42" aria-hidden="true" style="width:34px;height:36px"><polygon points="20,2 38,12 20,22 2,12" fill="#6ee04a" stroke="#fff" stroke-width="2"/><polygon points="2,12 20,22 20,40 2,30" fill="#4cc3ff" stroke="#fff" stroke-width="2"/><polygon points="38,12 20,22 20,40 38,30" fill="#ffd43b" stroke="#fff" stroke-width="2"/></svg><span>Block<em>Wave</em></span></div>
+        <p>A bright home for ultra-sharp packs, shaders and worlds for blocky sandbox games.</p>
+      </div>
+      <div><h4>Browse</h4><ul><li><a href="#browse" data-cat="Textures">Textures</a></li><li><a href="#browse" data-cat="Shaders">Shaders</a></li><li><a href="#browse" data-cat="Worlds">Worlds</a></li><li><a href="#browse" data-cat="Mods">Mods</a></li></ul></div>
+      <div><h4>Community</h4><ul><li><button class="linkbtn" data-submit>Submit a pack</button></li><li><a href="#why">Why HD</a></li><li><a href="#top">Back to top ↑</a></li></ul></div>
+      <div>
+        <h4>Weekly drops</h4>
+        <form class="news" id="newsForm" novalidate>
+          <input id="newsEmail" type="email" placeholder="you@email.com" aria-label="Email address">
+          <button type="submit">Join</button>
+        </form>
+        <span class="err" id="eNews"></span>
+      </div>
+    </div>
+    <div class="copy"><span>© 2026 BlockWave HD</span><span>All packs shown are fictional samples</span></div>
+  </div>
+</footer>
+
+<div class="shade" id="shade"></div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <button class="x" id="mClose" aria-label="Close">✕</button>
+  <div class="m-art" id="mArt"></div>
+  <div class="m-body">
+    <span class="cat-tag" id="mCat"></span>
+    <h2 id="mTitle"></h2>
+    <div class="m-by" id="mBy"></div>
+    <p class="m-desc" id="mDesc"></p>
+    <ul class="m-feats" id="mFeats"></ul>
+    <div class="facts" id="mFacts"></div>
+    <div class="m-label">Download quality</div>
+    <div class="qual" id="mQual"></div>
+    <div class="prog" id="mProg" aria-hidden="true"><i id="mBar"></i></div>
+    <div class="m-actions">
+      <button class="btn" id="mDl">⬇ Download</button>
+      <button class="btn white" id="mSave">♡ Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal narrow" id="subModal" role="dialog" aria-modal="true" aria-labelledby="sTitle">
+  <button class="x" id="sClose" aria-label="Close">✕</button>
+  <div class="form-body">
+    <span class="cat-tag">Creator Portal</span>
+    <h2 id="sTitle">Submit a Creation</h2>
+    <p>Tell us about your pack. Our team reviews every entry within a week.</p>
+    <form id="subForm" novalidate>
+      <div class="two">
+        <div class="field"><label for="sName">Your name</label><input id="sName" type="text" autocomplete="name"><span class="err" id="eName"></span></div>
+        <div class="field"><label for="sEmail">Email</label><input id="sEmail" type="email" autocomplete="email"><span class="err" id="eEmail"></span></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="sTitleIn">Pack title</label><input id="sTitleIn" type="text"><span class="err" id="eTitle"></span></div>
+        <div class="field"><label for="sCat">Category</label><select id="sCat"><option>Textures</option><option>Shaders</option><option>Worlds</option><option>Mods</option></select></div>
+      </div>
+      <div class="field"><label for="sLink">Preview link (optional)</label><input id="sLink" type="url" placeholder="https://"><span class="err" id="eLink"></span></div>
+      <div class="field"><label for="sMsg">Description</label><textarea id="sMsg" placeholder="What makes your pack special?"></textarea><span class="err" id="eMsg"></span></div>
+      <button type="submit" class="btn block">Send Submission</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- DATA ---------- */
+  var items=[
+    {id:1,name:"Sunstone Ultra Textures",cat:"Textures",q:2,qLabel:"UHD 512×",rating:4.9,dl:182000,size:240,ver:"1.21",author:"PixelForge Studio",base:"#f4b942",accent:["#fff3b0","#ffe066"],pattern:"ore",isNew:false,tags:"realistic warm sunny golden stone ultra",desc:"A warm, golden texture set with razor-sharp edges and richly detailed surfaces, built to look stunning in daylight.",features:["512× resolution for every block","Hand-painted ore and stone detail","Works with every shader pack"]},
+    {id:2,name:"Crystal Clear Shaders",cat:"Shaders",q:3,qLabel:"4K Lighting",rating:4.8,dl:231000,size:96,ver:"2.4",author:"Lumen Lab",base:"#6fd3ff",accent:["#ffffff"],pattern:"noise",isNew:true,tags:"water reflections lighting clear shadows glow",desc:"Crystal-clear water, soft volumetric light and crisp shadows. Everything looks like a postcard.",features:["4K-ready shadow maps","Real-time water reflections","Adjustable brightness profiles"]},
+    {id:3,name:"Skyreach Islands",cat:"Worlds",q:2,qLabel:"UHD terrain",rating:4.7,dl:97000,size:180,ver:"1.4",author:"CloudBuilders",base:"#58d68d",accent:["#d3f9d8"],pattern:"stripe",isNew:false,tags:"islands floating sky adventure exploration map",desc:"A chain of floating islands linked by bridges, waterfalls and hidden caves. Built for exploring and for building.",features:["40 hand-built islands","Hidden quests and secret caves","Optimised for multiplayer"]},
+    {id:4,name:"Mossbrick Builder Kit",cat:"Mods",q:1,qLabel:"HD 128×",rating:4.5,dl:64000,size:42,ver:"3.0",author:"BrickBench",base:"#8fbf6a",accent:["#d8f5a2"],pattern:"brick",isNew:false,tags:"building blocks bricks tools castle medieval",desc:"Hundreds of new brick, beam and arch blocks that make castles and villages quick to build.",features:["300+ decorative blocks","Quick-place blueprint tool","Colour variants for every block"]},
+    {id:5,name:"Coral Reef Realism",cat:"Textures",q:3,qLabel:"4K 1024×",rating:4.9,dl:143000,size:520,ver:"1.3",author:"DeepBlue Pixels",base:"#ff7aa8",accent:["#ffd1e0","#fff0f5"],pattern:"ore",isNew:true,tags:"ocean coral reef underwater pink realistic water",desc:"Stunning underwater life with detailed corals, sparkling sand and glowing sea plants in true 4K.",features:["1024× textures","Animated sea plants","Bright pastel colour palette"]},
+    {id:6,name:"Sunrise Glow Shaders",cat:"Shaders",q:2,qLabel:"UHD lighting",rating:4.6,dl:118000,size:84,ver:"1.8",author:"Lumen Lab",base:"#ffa94d",accent:["#fff0c2"],pattern:"stripe",isNew:false,tags:"sunrise sunset golden hour sky glow lighting",desc:"Golden-hour light with warm skies and soft god rays. Every morning feels like a movie scene.",features:["Dynamic sunrise and sunset","Soft god rays","Low-end device mode"]},
+    {id:7,name:"Clockwork Village",cat:"Worlds",q:1,qLabel:"HD map",rating:4.4,dl:52000,size:120,ver:"1.1",author:"GearTown Team",base:"#b08968",accent:["#ffd8a8"],pattern:"brick",isNew:false,tags:"village steampunk town gears city map",desc:"A lively village full of gears, tram lines and tiny workshops. Perfect for roleplay servers.",features:["60 interior-detailed buildings","Working tram route","Spawn-point friendly layout"]},
+    {id:8,name:"Quick Craft Toolbox",cat:"Mods",q:1,qLabel:"HD 128×",rating:4.3,dl:88000,size:18,ver:"2.2",author:"ToolShed",base:"#4dabf7",accent:["#e7f5ff"],pattern:"grid",isNew:false,tags:"tools crafting utility inventory quick helper",desc:"A lightweight set of helpers: auto-sort chests, quick-craft menus and a handy mini-map.",features:["Auto-sort inventory","Quick-craft menu","Tiny memory footprint"]},
+    {id:9,name:"Lava Lamp Lighting",cat:"Shaders",q:2,qLabel:"UHD lighting",rating:4.7,dl:76000,size:70,ver:"1.5",author:"NeonNest",base:"#ff6b3d",accent:["#ffe066","#ffd43b"],pattern:"ore",isNew:true,tags:"lava glow colourful colorful neon lighting caves",desc:"Colourful, glowing light that makes caves and nether spaces pop with warm, bubbling colour.",features:["Coloured torch lighting","Glowing lava bloom","Bright night mode"]},
+    {id:10,name:"Floating Gardens",cat:"Worlds",q:2,qLabel:"UHD terrain",rating:4.8,dl:101000,size:210,ver:"2.0",author:"GreenThumb Guild",base:"#63e6be",accent:["#d3f9d8","#b2f2bb"],pattern:"noise",isNew:false,tags:"garden flowers nature relaxing plants map",desc:"Peaceful terraced gardens suspended in the sky, full of flowers, ponds and little paths.",features:["120 flower and plant types","Day and night ambience","Perfect for photos"]},
+    {id:11,name:"Pixel Perfect Interface",cat:"Textures",q:1,qLabel:"HD 128×",rating:4.5,dl:69000,size:36,ver:"1.6",author:"PixelForge Studio",base:"#9775fa",accent:["#e5dbff"],pattern:"grid",isNew:false,tags:"ui interface menu hud buttons inventory clean",desc:"A clean, bright interface pack: crisp menus, readable fonts and tidy inventory screens.",features:["Redesigned HUD and menus","High-contrast fonts","Light and dark variants"]},
+    {id:12,name:"Rainbow Ore Textures",cat:"Textures",q:2,qLabel:"UHD 512×",rating:4.6,dl:112000,size:260,ver:"1.9",author:"GemCutters",base:"#74c0fc",accent:["#ff6b6b","#ffd43b","#63e6be","#ff5fa2"],pattern:"ore",isNew:true,tags:"ore gems colourful colorful rainbow bright crystals",desc:"Every ore and gem in its own vivid colour, so you can spot treasure from across a cave.",features:["24 recoloured ores","Glow-in-the-dark gems","Colourblind-friendly palette"]}
+  ];
+  var cats=["All","Textures","Shaders","Worlds","Mods"];
+
+  /* ---------- STATE ---------- */
+  var state={query:"",cat:"All",minQ:0,sort:"featured",savedOnly:false,saved:[]};
+  try{ state.saved=JSON.parse(localStorage.getItem("bw_saved")||"[]"); }catch(e){ state.saved=[]; }
+  function persist(){ try{ localStorage.setItem("bw_saved",JSON.stringify(state.saved)); }catch(e){} }
+
+  /* ---------- HELPERS ---------- */
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+  function byId(id){ return items.filter(function(i){return i.id===id;})[0]; }
+  function fmtDl(n){ return n>=1000?(n/1000).toFixed(n>=100000?0:1).replace(/\.0$/,"")+"k":String(n); }
+  var toastTimer;
+  function toast(msg){ var t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(function(){t.classList.remove("show");},2600); }
+  function refreshShade(){
+    var any=$("modal").classList.contains("show")||$("subModal").classList.contains("show");
+    $("shade").classList.toggle("show",any); document.body.style.overflow=any?"hidden":"";
+  }
+
+  /* ---------- HD ISOMETRIC BLOCK ART ---------- */
+  function mulberry(a){ return function(){ a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296; }; }
+  function shade(hex,f){
+    var n=parseInt(hex.slice(1),16), r=(n>>16)&255, g=(n>>8)&255, b=n&255;
+    function c(v){ return Math.max(0,Math.min(255,Math.round(v*f))); }
+    return "rgb("+c(r)+","+c(g)+","+c(b)+")";
+  }
+  function faceCells(it,f,rnd){
+    var out="";
+    for(var y=0;y<12;y++){
+      for(var x=0;x<12;x++){
+        var factor=f*(1+(rnd()-.5)*.16), col;
+        if(it.pattern==="brick"){
+          var row=Math.floor(y/3), off=(row%2)*3;
+          if(y%3===2||((x+off)%6)===0) factor*=.72;
+        }else if(it.pattern==="stripe"){
+          if(x%4<2) factor*=1.12;
+        }else if(it.pattern==="grid"){
+          if(x%4===0||y%4===0) factor*=.8;
+        }
+        col=shade(it.base,factor);
+        if(it.pattern==="ore"&&rnd()<.14){ col=shade(it.accent[Math.floor(rnd()*it.accent.length)],f>1?1:f); }
+        out+='<rect x="'+x+'" y="'+y+'" width="1.04" height="1.04" fill="'+col+'"/>';
+      }
+    }
+    return out;
+  }
+  function cubeSVG(it){
+    var rnd=mulberry(it.id*7919+13), k=7.33, a=0.866*k, b=0.5*k;
+    var top='<g transform="matrix('+a+','+b+','+(-a)+','+b+',100,20)">'+faceCells(it,1.16,rnd)+'</g>';
+    var left='<g transform="matrix('+a+','+b+',0,'+k+','+(100-a*12)+','+(20+b*12)+')">'+faceCells(it,1,rnd)+'</g>';
+    var right='<g transform="matrix('+a+','+(-b)+',0,'+k+',100,'+(20+b*24)+')">'+faceCells(it,.76,rnd)+'</g>';
+    var w=a*12, h=b*12;
+    var outline='<polygon points="100,20 '+(100+w)+','+(20+h)+' '+(100+w)+','+(20+h+k*12)+' 100,'+(20+2*h+k*12)+' '+(100-w)+','+(20+h+k*12)+' '+(100-w)+','+(20+h)+'" fill="none" stroke="#10264a" stroke-width="3" stroke-linejoin="round"/>'+
+      '<path d="M100,'+(20+2*h)+' V'+(20+2*h+k*12)+' M100,'+(20+2*h)+' L'+(100-w)+','+(20+h)+' M100,'+(20+2*h)+' L'+(100+w)+','+(20+h)+'" stroke="#10264a" stroke-width="2.4" stroke-opacity=".7" fill="none"/>';
+    return '<svg viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+esc(it.name)+' block preview">'+top+left+right+outline+'</svg>';
+  }
+
+  /* ---------- HERO CUBES ---------- */
+  (function(){
+    var picks=[{cls:"a",id:1},{cls:"b",id:2},{cls:"c",id:12}];
+    $("heroCubes").innerHTML=picks.map(function(p){ return '<div class="fc '+p.cls+'">'+cubeSVG(byId(p.id))+'</div>'; }).join("");
+  })();
+
+  /* ---------- NAV ---------- */
+  var burger=$("burger"), navLinks=$("navLinks");
+  function closeMenu(){ navLinks.classList.remove("open"); burger.classList.remove("open"); burger.setAttribute("aria-expanded","false"); }
+  burger.addEventListener("click",function(){ var o=navLinks.classList.toggle("open"); burger.classList.toggle("open",o); burger.setAttribute("aria-expanded",o); });
+  document.addEventListener("click",function(e){
+    var a=e.target.closest("a[data-cat]");
+    if(a){ state.cat=a.getAttribute("data-cat"); state.savedOnly=false; update(); }
+    if(e.target.closest("#navLinks a")) closeMenu();
+    if(e.target.closest("[data-submit]")){ closeMenu(); openSub(); }
+  });
+  $("savedBtn").addEventListener("click",function(){
+    state.savedOnly=true; update(); $("browse").scrollIntoView({behavior:"smooth"});
+    if(!state.saved.length) toast("No saved packs yet");
+  });
+
+  /* ---------- COUNTERS ---------- */
+  document.querySelectorAll("[data-count]").forEach(function(el){
+    var target=+el.getAttribute("data-count"), cur=0, step=Math.max(1,Math.ceil(target/60));
+    var iv=setInterval(function(){ cur+=step; if(cur>=target){cur=target;clearInterval(iv);} el.textContent=cur.toLocaleString("en-US"); },25);
+  });
+
+  /* ---------- FILTERS ---------- */
+  function renderChips(){
+    $("filters").innerHTML=cats.map(function(c){
+      return '<button class="chip'+(state.cat===c&&!state.savedOnly?' active':'')+'" data-chip="'+c+'">'+c+'</button>';
+    }).join("")+'<button class="chip saved'+(state.savedOnly?' active':'')+'" data-saved="1">♥ Saved ('+state.saved.length+')</button>';
+  }
+  $("filters").addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b) return;
+    if(b.dataset.saved){ state.savedOnly=!state.savedOnly; } else { state.cat=b.dataset.chip; state.savedOnly=false; }
+    update();
+  });
+  var input=$("search");
+  input.addEventListener("input",function(){ state.query=input.value.trim().toLowerCase(); $("clearBtn").style.display=input.value?"block":"none"; update(); });
+  $("clearBtn").addEventListener("click",function(){ input.value=""; state.query=""; $("clearBtn").style.display="none"; input.focus(); update(); });
+  $("quality").addEventListener("change",function(e){ state.minQ=+e.target.value; update(); });
+  $("sort").addEventListener("change",function(e){ state.sort=e.target.value; update(); });
+  $("resetBtn").addEventListener("click",function(){
+    input.value=""; state.query=""; state.cat="All"; state.minQ=0; state.sort="featured"; state.savedOnly=false;
+    $("quality").value="0"; $("sort").value="featured"; $("clearBtn").style.display="none"; update();
+  });
+
+  function visible(){
+    var list=items.filter(function(it){
+      if(state.savedOnly&&state.saved.indexOf(it.id)===-1) return false;
+      if(state.cat!=="All"&&it.cat!==state.cat) return false;
+      if(it.q<state.minQ) return false;
+      if(state.query){
+        var hay=(it.name+" "+it.cat+" "+it.tags+" "+it.desc+" "+it.author+" "+it.qLabel).toLowerCase();
+        return state.query.split(/\s+/).every(function(w){return hay.indexOf(w)!==-1;});
+      }
+      return true;
+    });
+    var s=state.sort;
+    if(s==="downloads") list.sort(function(a,b){return b.dl-a.dl;});
+    else if(s==="rating") list.sort(function(a,b){return b.rating-a.rating;});
+    else if(s==="newest") list.sort(function(a,b){return (b.isNew-a.isNew)||(b.id-a.id);});
+    else if(s==="az") list.sort(function(a,b){return a.name.localeCompare(b.name);});
+    return list;
+  }
+
+  /* ---------- GRID ---------- */
+  var artCache={};
+  function art(it){ return artCache[it.id]||(artCache[it.id]=cubeSVG(it)); }
+  function renderGrid(){
+    var list=visible();
+    $("grid").innerHTML=list.map(function(it,i){
+      var on=state.saved.indexOf(it.id)!==-1;
+      return '<article class="card" style="animation-delay:'+(i*40)+'ms">'+
+        '<div style="position:relative"><button class="art c-'+it.cat+'" data-open="'+it.id+'" aria-label="View '+esc(it.name)+'">'+
+          '<span class="q-badge">'+esc(it.qLabel)+'</span>'+(it.isNew?'<span class="new-badge">New</span>':'')+art(it)+'</button>'+
+          '<button class="heart'+(on?' on':'')+'" data-heart="'+it.id+'" aria-label="'+(on?'Remove ':'Save ')+esc(it.name)+(on?' from':' to')+' saved">'+(on?'♥':'♡')+'</button></div>'+
+        '<div class="card-body"><span class="cat-tag">'+esc(it.cat)+' · v'+esc(it.ver)+'</span><h3>'+esc(it.name)+'</h3><p>'+esc(it.desc.length>96?it.desc.slice(0,94)+"…":it.desc)+'</p>'+
+        '<div class="meta"><span class="stars">★ '+it.rating.toFixed(1)+'</span><span>⬇ '+fmtDl(it.dl)+'</span><span>'+it.size+' MB</span></div>'+
+        '<button class="btn sm sky" data-open="'+it.id+'">View Details</button></div></article>';
+    }).join("");
+    $("empty").style.display=list.length?"none":"block";
+    $("resultInfo").textContent=list.length+" of "+items.length+" packs"+(state.query?' matching “'+input.value.trim()+'”':"")+(state.savedOnly?" · saved":"");
+  }
+  $("grid").addEventListener("click",function(e){
+    var h=e.target.closest("[data-heart]"), o=e.target.closest("[data-open]");
+    if(h) toggleSave(+h.dataset.heart); else if(o) openModal(+o.dataset.open);
+  });
+  function toggleSave(id){
+    var i=state.saved.indexOf(id), it=byId(id);
+    if(i===-1){ state.saved.push(id); toast("♥ Saved "+it.name); } else { state.saved.splice(i,1); toast("Removed from saved"); }
+    persist(); update(); if(modalId===id) syncSave();
+  }
+  function update(){ renderChips(); renderGrid(); $("savedCount").textContent=state.saved.length; }
+
+  /* ---------- DETAIL MODAL ---------- */
+  var modalId=null, qualityIdx=1, lastFocus=null, dlTimer=null;
+  var QUAL=[{name:"Standard",mult:1},{name:"High",mult:1.7},{name:"Ultra",mult:2.6}];
+  function dlSize(it){ return Math.round(it.size*QUAL[qualityIdx].mult); }
+  function renderQual(it){
+    $("mQual").innerHTML=QUAL.map(function(q,i){
+      return '<button data-q="'+i+'" class="'+(i===qualityIdx?'active':'')+'">'+q.name+'<small>'+Math.round(it.size*q.mult)+' MB</small></button>';
+    }).join("");
+    $("mDl").textContent="⬇ Download · "+dlSize(it)+" MB";
+  }
+  function openModal(id){
+    var it=byId(id); if(!it) return;
+    modalId=id; qualityIdx=1; lastFocus=document.activeElement;
+    $("mArt").className="m-art c-"+it.cat; $("mArt").innerHTML=cubeSVG(it);
+    $("mCat").textContent=it.cat+" · "+it.qLabel; $("mTitle").textContent=it.name; $("mBy").textContent="by "+it.author+" · version "+it.ver;
+    $("mDesc").textContent=it.desc;
+    $("mFeats").innerHTML=it.features.map(function(f){return "<li>"+esc(f)+"</li>";}).join("");
+    $("mFacts").innerHTML=[["Rating","★ "+it.rating.toFixed(1)],["Downloads",fmtDl(it.dl)],["Quality",it.q===3?"4K":it.q===2?"UHD":"HD"]]
+      .map(function(f){return '<div class="fact"><span>'+f[0]+'</span><b>'+esc(f[1])+'</b></div>';}).join("");
+    renderQual(it); resetProgress(); syncSave();
+    $("modal").classList.add("show"); refreshShade(); $("mClose").focus();
+  }
+  function syncSave(){ $("mSave").textContent=state.saved.indexOf(modalId)!==-1?"♥ Saved":"♡ Save"; }
+  function resetProgress(){ clearInterval(dlTimer); $("mProg").style.display="none"; $("mBar").style.width="0"; $("mDl").disabled=false; }
+  function closeModal(){ resetProgress(); $("modal").classList.remove("show"); modalId=null; refreshShade(); if(lastFocus&&lastFocus.focus) lastFocus.focus(); }
+  $("mClose").addEventListener("click",closeModal);
+  $("mQual").addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b||$("mDl").disabled) return;
+    qualityIdx=+b.dataset.q; renderQual(byId(modalId));
+  });
+  $("mSave").addEventListener("click",function(){ if(modalId!==null) toggleSave(modalId); });
+  $("mDl").addEventListener("click",function(){
+    var it=byId(modalId); if(!it) return;
+    var pct=0; $("mDl").disabled=true; $("mDl").textContent="Downloading…"; $("mProg").style.display="block";
+    dlTimer=setInterval(function(){
+      pct+=4+Math.random()*7; if(pct>100) pct=100;
+      $("mBar").style.width=pct+"%";
+      if(pct>=100){
+        clearInterval(dlTimer); it.dl++; renderGrid();
+        $("mDl").disabled=false; renderQual(it); $("mProg").style.display="none"; $("mBar").style.width="0";
+        toast("✔ "+it.name+" ("+QUAL[qualityIdx].name+") ready — demo download");
+      }
+    },110);
+  });
+
+  /* ---------- SUBMIT MODAL ---------- */
+  function openSub(){ lastFocus=document.activeElement; $("subModal").classList.add("show"); refreshShade(); $("sName").focus(); }
+  function closeSub(){ $("subModal").classList.remove("show"); refreshShade(); if(lastFocus&&lastFocus.focus) lastFocus.focus(); }
+  $("sClose").addEventListener("click",closeSub);
+  $("subForm").addEventListener("submit",function(e){
+    e.preventDefault();
+    var name=$("sName").value.trim(), email=$("sEmail").value.trim(), title=$("sTitleIn").value.trim(), link=$("sLink").value.trim(), msg=$("sMsg").value.trim(), ok=true;
+    ["eName","eEmail","eTitle","eLink","eMsg"].forEach(function(id){ $(id).textContent=""; });
+    if(name.length<2){ $("eName").textContent="Please enter your name."; ok=false; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ $("eEmail").textContent="Enter a valid email."; ok=false; }
+    if(title.length<3){ $("eTitle").textContent="Give your pack a title."; ok=false; }
+    if(link&&!/^https?:\/\/[^\s.]+\.[^\s]+$/.test(link)){ $("eLink").textContent="Enter a full link starting with https://"; ok=false; }
+    if(msg.length<15){ $("eMsg").textContent="At least 15 characters, please."; ok=false; }
+    if(!ok) return;
+    this.reset(); closeSub(); toast("Thanks "+name.split(" ")[0]+"! Submission received.");
+  });
+
+  /* ---------- NEWSLETTER ---------- */
+  $("newsForm").addEventListener("submit",function(e){
+    e.preventDefault(); var v=$("newsEmail").value.trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){ $("eNews").textContent="Enter a valid email."; return; }
+    $("eNews").textContent=""; this.reset(); toast("You're on the weekly drop list!");
+  });
+
+  /* ---------- GLOBAL CLOSE ---------- */
+  $("shade").addEventListener("click",function(){ closeModal(); closeSub(); });
+  document.addEventListener("keydown",function(e){
+    if(e.key!=="Escape") return;
+    if($("modal").classList.contains("show")) closeModal();
+    if($("subModal").classList.contains("show")) closeSub();
+  });
+
+  /* ---------- INIT ---------- */
+  update();
+})();
+</script>
+</body>
+</html>
